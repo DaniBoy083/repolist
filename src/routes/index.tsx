@@ -7,7 +7,10 @@ import { createBrowserRouter } from "react-router-dom";
 import NotFoundPage from "../pages/notfound";
 import Layout from "../components/layout";
 import HomePage from "../pages/home";
-import RepositorioPage from "../pages/repositorio";
+import LoginPage from "../pages/login";
+import DashboardPage from "../pages/dashnoard";
+import DetailsPage from "../pages/details";
+import ProtectedRoute from "./protected-route";
 
 
 // Criação do roteador com as rotas da aplicação
@@ -21,8 +24,24 @@ const router = createBrowserRouter([
                 element: <HomePage />
             },
             {
-                path: "/repositorios/:repsitorio",
-                element: <RepositorioPage />
+                path: "/login",
+                element: <LoginPage />
+            },
+            {
+                // Página de detalhes de um repositório específico
+                path: "/details/:repo",
+                element: <DetailsPage />
+            },
+            {
+                // Bloco de rotas privadas (exige autenticação).
+                element: <ProtectedRoute />,
+                children: [
+                    {
+                        // Dashboard só pode ser acessado por usuário logado.
+                        path: "/dashboard",
+                        element: <DashboardPage />
+                    }
+                ]
             },
             {
                 // Rota coringa para página 404 (qualquer rota não definida)
