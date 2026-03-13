@@ -1,0 +1,44 @@
+.footer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 30px;
+    box-sizing: border-box;
+    background-color: black;
+    color: white;
+    border-top: 2px solid #333;
+    text-align: center;
+}
+
+.footer .desenvolvedor {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    list-style: none;
+    padding: 0;
+}
+
+.footer .desenvolvedor ol {
+    list-style: none;
+    padding: 10px 0;
+    font-size: 0.95rem;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.footer .desenvolvedor a {
+    color: white;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.footer .desenvolvedor a:hover {
+    color: #aaa;
+    text-decoration: underline;
+}
+
+.footer .desenvolvedor p {
+    font-size: 0.95rem;
+    color: #aaa;
+}
