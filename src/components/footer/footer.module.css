@@ -1,4 +1,5 @@
 .footer {
+    /* Organiza conteúdo do rodapé em coluna, com espaçamento interno e contraste alto. */
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -11,6 +12,7 @@
 }
 
 .footer .desenvolvedor {
+    /* Centraliza o bloco de informações e limita largura para melhor leitura. */
     width: 100%;
     max-width: 960px;
     margin: 0 auto;
@@ -19,6 +21,7 @@
 }
 
 .footer .desenvolvedor ol {
+    /* Remove marcadores e ajusta tipografia dos itens de contato. */
     list-style: none;
     padding: 10px 0;
     font-size: 0.95rem;
@@ -27,6 +30,7 @@
 }
 
 .footer .desenvolvedor a {
+    /* Estiliza links mantendo boa legibilidade no fundo escuro. */
     color: white;
     text-decoration: none;
     transition: all 0.3s ease;
@@ -34,11 +38,13 @@
 }
 
 .footer .desenvolvedor a:hover {
+    /* Aplica feedback visual ao passar o mouse sobre o link. */
     color: #aaa;
     text-decoration: underline;
 }
 
 .footer .desenvolvedor p {
+    /* Define estilo auxiliar para textos de apoio no rodapé. */
     font-size: 0.95rem;
     color: #aaa;
 }

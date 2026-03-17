@@ -1,8 +1,8 @@
-import axios from "axios";
+import axios from "axios"; // Importa cliente HTTP para consumo da API.
 
-// Endpoint base da API do GitHub
+// Cria instância HTTP centralizada com URL base da API pública do GitHub.
 const api = axios.create({
-    baseURL: "https://api.github.com",
+    baseURL: "https://api.github.com", // Todas as requisições relativas usarão este prefixo.
 });
 
-export default api;
+export default api; // Exporta cliente para ser reutilizado em páginas e serviços.

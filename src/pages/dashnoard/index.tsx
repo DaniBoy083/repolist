@@ -4,13 +4,13 @@
   e remover repos da lista, além do botão de logout.
 */
 
-import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { FaTrash, FaSignOutAlt, FaPlus } from "react-icons/fa";
-import toast from "react-hot-toast";
-import Conteiner from "../../components/conteiner";
-import { logout } from "../../auth/session";
-import api from "../../services/api";
+import { useState, useEffect } from "react"; // Importa hooks de estado e ciclo de vida.
+import { useNavigate, Link } from "react-router-dom"; // Importa navegação imperativa e links internos.
+import { FaTrash, FaSignOutAlt, FaPlus } from "react-icons/fa"; // Importa ícones para ações da interface.
+import toast from "react-hot-toast"; // Importa notificações visuais para feedback ao usuário.
+import Conteiner from "../../components/conteiner"; // Importa container base para alinhamento de conteúdo.
+import { logout } from "../../auth/session"; // Importa função de encerramento de sessão.
+import api from "../../services/api"; // Importa cliente HTTP da API do GitHub.
 
 // Chave local para repos removidos pelo usuário no dashboard
 const HIDDEN_KEY = "repolist:hiddenRepos";
@@ -22,6 +22,7 @@ interface Repo {
     name: string;
     description: string | null;
     language: string | null;
+    full_name?: string;
 }
 
 function getHidden(): Set<string> {
@@ -179,11 +180,20 @@ export default function DashboardPage() {
                 )}
 
                 {repos.map((repo) => (
+                    // Deriva owner do campo full_name quando existir; fallback para o dono padrao.
+                    // Exemplo de full_name: "owner/nome-do-repo".
+                    (() => {
+                        const owner = repo.full_name?.split("/")[0] || "DaniBoy083";
+
+                        return (
                     <div
                         key={repo.id}
                         className="mb-3 flex items-center justify-between rounded-md border border-white/20 bg-white/5 px-4 py-3"
                     >
-                        <div className="flex flex-col">
+                        <Link
+                            to={`/details/${owner}/${repo.name}`}
+                            className="flex flex-1 flex-col rounded-md transition hover:opacity-80"
+                        >
                             <span className="font-semibold text-white">{repo.name}</span>
                             {repo.description && (
                                 <span className="text-sm text-gray-400">{repo.description}</span>
@@ -191,7 +201,7 @@ export default function DashboardPage() {
                             {repo.language && (
                                 <span className="mt-1 text-xs text-gray-500">{repo.language}</span>
                             )}
-                        </div>
+                        </Link>
 
                         {/* Botão de deleção do repositório da lista */}
                         <button
@@ -202,6 +212,8 @@ export default function DashboardPage() {
                             Deletar
                         </button>
                     </div>
+                        );
+                    })()
                 ))}
             </div>
         </Conteiner>

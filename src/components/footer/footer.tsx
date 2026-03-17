@@ -1,14 +1,14 @@
 // Componente Footer: rodapé da aplicação
 // Contém informações de contato e link externo.
 
-import styles from './footer.module.css';
+import styles from './footer.module.css'; // Importa estilos isolados por CSS Module.
 
 export default function Footer() {
     // Usamos um <ol> com <li> para representar itens, estilizados pelo módulo CSS
-    return(
-        <footer className={styles.footer}>
-            <div id="sobre" className={styles.desenvolvedor}>
-                <ol>
+    return (
+        <footer className={styles.footer}> {/* Rodapé principal da aplicação. */}
+            <div id="sobre" className={styles.desenvolvedor}> {/* Bloco com informações do desenvolvedor. */}
+                <ol> {/* Lista semântica com créditos e links de contato. */}
                     {/* Item 1: crédito do desenvolvedor */}
                     <li>Página desenvolvida por Daniel Costa Carvalho Martins</li>
                     {/* Item 2: link de contato por email */}
@@ -18,5 +18,5 @@ export default function Footer() {
                 </ol>
             </div>
         </footer>
-    )
+    );
 }

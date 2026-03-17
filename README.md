@@ -1,6 +1,6 @@
 # RepoList
 
-Aplicacao React com TypeScript, Vite, React Router e Tailwind CSS v4 para listagem e gerenciamento de repositórios do GitHub.
+Aplicacao React com TypeScript, Vite, React Router e Tailwind CSS para listar repositorios do GitHub, visualizar detalhes e acompanhar issues.
 
 ## Stack
 
@@ -20,8 +20,8 @@ Aplicacao React com TypeScript, Vite, React Router e Tailwind CSS v4 para listag
 
 ## Scripts
 
-- `npm run dev`: inicia o servidor local com HMR.
-- `npm run build`: roda type-check e gera build de producao.
+- `npm run dev`: inicia servidor local com hot reload.
+- `npm run build`: executa type-check e gera build de producao.
 - `npm run preview`: sobe o build localmente.
 - `npm run lint`: executa o ESLint.
 
@@ -45,50 +45,71 @@ npm run dev
 http://localhost:5173
 ```
 
-## Rotas
+## Funcionalidades
 
-- `/`: Home com listagem de repositorios do usuario, filtro e marcador para dashboard.
-- `/login`: Login com credenciais fixas (modo aprendizado).
-- `/details/:repo`: Página de detalhes (estrutura inicial).
-- `/dashboard`: Rota protegida com logout, adicao de repos externos e delecao da lista.
-- `*`: Página 404.
+### Home
 
-## Autenticacao
+- Lista repositorios do usuario `DaniBoy083`.
+- Filtro por nome em tempo real.
+- Navegacao para detalhes ao clicar em um repositorio.
 
-Autenticacao simplificada em frontend, usando `localStorage` e guard de rota.
+### Detalhes do repositorio
+
+- Exibe dados do repositorio: nome completo, descricao, linguagem, estrelas, forks e issues abertas.
+- Exibe avatar e login do dono do repositorio.
+- Lista issues com paginacao.
+- Filtro de issues por estado: `open`, `closed` e `all`.
+- Seletor de quantidade por pagina: `5`, `10` e `20`.
+- Exibe autor da issue com nome (quando disponivel) e avatar.
+
+### Dashboard (rota protegida)
+
+- Exige autenticacao.
+- Carrega repositorios principais do usuario.
+- Permite adicionar repositorios externos via `owner/repo`.
+- Permite remover repositorios da lista do dashboard.
+- Permite abrir detalhes de qualquer repositorio da lista.
+- Exibe feedback visual com `react-hot-toast`.
+
+### Autenticacao
+
+- Controle simples com `localStorage`.
+- Guard de rota para proteger o dashboard.
+- Login com credenciais fixas (ambiente de estudo).
 
 Credenciais atuais:
 
 - Email: `danielcostacarvalhomartins06@gmail.com`
 - Senha: `Dani31012006@123`
 
-Importante: isso é apenas para estudo. Em producao, a validacao deve acontecer no backend.
+Importante: em producao, a validacao deve acontecer no backend.
 
-## Dashboard
+## Rotas
 
-- Carrega repositorios da API do GitHub.
-- Permite adicionar repositórios externos por `owner/repo`.
-- Permite remover repositorios da lista.
-- Exibe feedback visual com `react-hot-toast` (sucesso/erro).
+- `/`: Home.
+- `/login`: Login.
+- `/details/:owner/:repo`: Detalhes do repositorio e issues.
+- `/dashboard`: Dashboard protegido.
+- `*`: Pagina 404.
 
-## Build para Vercel
+## Deploy na Vercel
 
-Gerar build localmente:
+Build local:
 
 ```bash
 npm run build
 ```
 
-Publicar no Vercel (opcao 1 - painel web):
+Opcao 1 (painel web):
 
 1. Faça push para o GitHub.
-2. Importe o repositório no Vercel.
+2. Importe o repositorio no Vercel.
 3. Framework preset: `Vite`.
 4. Build command: `npm run build`.
 5. Output directory: `dist`.
 6. Deploy.
 
-Publicar no Vercel (opcao 2 - CLI):
+Opcao 2 (CLI):
 
 ```bash
 npm i -g vercel
@@ -96,4 +117,4 @@ vercel
 vercel --prod
 ```
 
-Observacao: o arquivo `vercel.json` já contém rewrite para SPA, garantindo funcionamento das rotas do React Router em producao.
+O arquivo `vercel.json` ja possui rewrite para SPA, garantindo funcionamento das rotas do React Router em producao.

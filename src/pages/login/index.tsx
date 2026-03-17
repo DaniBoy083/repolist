@@ -1,16 +1,16 @@
-import Conteiner from "../../components/conteiner";
-import type { FormEvent } from "react";
-import { useState } from "react";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { isAuthenticated, setAuthenticated, verifyCredentials } from "../../auth/session";
+import Conteiner from "../../components/conteiner"; // Importa container de layout da aplicação.
+import type { FormEvent } from "react"; // Importa tipagem para evento de submit de formulário.
+import { useState } from "react"; // Importa hook para estados do formulário.
+import { Navigate, useLocation, useNavigate } from "react-router-dom"; // Importa utilitários de navegação e redirecionamento.
+import toast from "react-hot-toast"; // Importa utilitário para feedback visual via toast.
+import { isAuthenticated, setAuthenticated, verifyCredentials } from "../../auth/session"; // Importa funções de autenticação local.
 
 export default function LoginPage() {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const navigate = useNavigate(); // Permite navegar para rota de destino após login.
+    const location = useLocation(); // Recupera rota de origem salva pelo guard.
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState(""); // Estado do campo de e-mail.
+    const [password, setPassword] = useState(""); // Estado do campo de senha.
 
     // Recupera rota de origem enviada pelo guard; fallback para dashboard.
     const from = (location.state as { from?: string } | undefined)?.from || "/dashboard";

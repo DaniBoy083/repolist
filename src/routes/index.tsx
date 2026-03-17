@@ -3,14 +3,14 @@
   Define todas as rotas da aplicação e a estrutura do layout
 */
 
-import { createBrowserRouter } from "react-router-dom";
-import NotFoundPage from "../pages/notfound";
-import Layout from "../components/layout";
-import HomePage from "../pages/home";
-import LoginPage from "../pages/login";
-import DashboardPage from "../pages/dashnoard";
-import DetailsPage from "../pages/details";
-import ProtectedRoute from "./protected-route";
+import { createBrowserRouter } from "react-router-dom"; // Importa criador de roteador baseado em navegador.
+import NotFoundPage from "../pages/notfound"; // Importa página de fallback para rotas inexistentes.
+import Layout from "../components/layout"; // Importa layout base compartilhado por páginas.
+import HomePage from "../pages/home"; // Importa página inicial pública.
+import LoginPage from "../pages/login"; // Importa página de autenticação.
+import DashboardPage from "../pages/dashnoard"; // Importa página privada do dashboard.
+import DetailsPage from "../pages/details"; // Importa página de detalhes do repositório.
+import ProtectedRoute from "./protected-route"; // Importa guard de autenticação para rotas privadas.
 
 
 // Criação do roteador com as rotas da aplicação
@@ -29,7 +29,7 @@ const router = createBrowserRouter([
             },
             {
                 // Página de detalhes de um repositório específico
-                path: "/details/:repo",
+                path: "/details/:owner/:repo",
                 element: <DetailsPage />
             },
             {
@@ -52,4 +52,4 @@ const router = createBrowserRouter([
     }
 ]);
 
-export {router};
+export { router }; // Exporta roteador para ser consumido pelo RouterProvider.
