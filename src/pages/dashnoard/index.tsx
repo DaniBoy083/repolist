@@ -120,17 +120,17 @@ export default function DashboardPage() {
     return (
         <Conteiner>
             {/* Cabeçalho com título centralizado, botão voltar e botão de logout */}
-            <div className="mt-10 flex items-center justify-between">
+            <div className="mt-10 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                 <Link
                     to="/"
-                    className="flex items-center gap-2 rounded-md border border-white px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
+                    className="justify-self-start flex items-center gap-2 rounded-md border border-white px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
                 >
                     ← Home
                 </Link>
-                <h1 className="text-3xl font-bold">Dashboard</h1>
+                <h1 className="text-center text-3xl font-bold">Dashboard</h1>
                 <button
                     onClick={handleLogout}
-                    className="flex items-center gap-2 rounded-md border border-white px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
+                    className="justify-self-end flex items-center gap-2 rounded-md border border-white px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
                 >
                     <FaSignOutAlt />
                     Logout
@@ -138,7 +138,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Formulário para adicionar um repositório externo */}
-            <div className="mt-8 w-full max-w-2xl">
+            <div className="mx-auto mt-8 w-full max-w-2xl">
                 <h2 className="mb-3 text-xl font-semibold">Adicionar repositório externo</h2>
                 <form onSubmit={handleAdicionar} className="flex gap-2">
                     <input
@@ -168,7 +168,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Lista de repositórios carregados da API */}
-            <div className="mt-8 w-full max-w-2xl pb-10">
+            <div className="mx-auto mt-8 w-full max-w-2xl pb-10">
                 <h2 className="mb-4 text-xl font-semibold">Repositórios cadastrados</h2>
 
                 {carregando && (
