@@ -120,7 +120,7 @@ export default function DashboardPage() {
     return (
         <Conteiner>
             {/* Cabeçalho com título centralizado, botão voltar e botão de logout */}
-            <div className="mt-10 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+            <div className="mx-auto mt-10 w-full max-w-2xl grid grid-cols-[1fr_auto_1fr] items-center gap-2">
                 <Link
                     to="/"
                     className="justify-self-start flex items-center gap-2 rounded-md border border-white px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"

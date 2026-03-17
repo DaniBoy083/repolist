@@ -9,6 +9,7 @@ import Conteiner from "../../components/conteiner"; // Importa container para ma
 import api from "../../services/api"; // Importa cliente HTTP para consultar dados no GitHub.
 
 type IssueStateFilter = "open" | "closed" | "all"; // Define estados possíveis para filtro de issues.
+type DetailsContentView = "issues" | "labels"; // Define qual bloco de conteúdo deve ser exibido na tela.
 
 interface RepoDetails {
     id: number;
@@ -46,6 +47,13 @@ interface GithubUserProfile {
     avatar_url: string;
 }
 
+interface RepoLabel {
+    id: number;
+    name: string;
+    color: string;
+    description: string | null;
+}
+
 export default function DetailsPage() {
     const { owner, repo } = useParams();
 
@@ -60,6 +68,13 @@ export default function DetailsPage() {
     const [erroIssues, setErroIssues] = useState("");
     const [temProximaPagina, setTemProximaPagina] = useState(false);
     const [autoresIssue, setAutoresIssue] = useState<Record<string, GithubUserProfile>>({});
+    const [labels, setLabels] = useState<RepoLabel[]>([]);
+    const [paginaLabels, setPaginaLabels] = useState(1);
+    const [labelsPorPagina, setLabelsPorPagina] = useState(5);
+    const [carregandoLabels, setCarregandoLabels] = useState(false);
+    const [erroLabels, setErroLabels] = useState("");
+    const [temProximaPaginaLabels, setTemProximaPaginaLabels] = useState(false);
+    const [visualizacaoAtiva, setVisualizacaoAtiva] = useState<DetailsContentView>("issues");
 
     useEffect(() => {
         if (!owner || !repo) {
@@ -84,7 +99,7 @@ export default function DetailsPage() {
     }, [owner, repo]);
 
     useEffect(() => {
-        if (!owner || !repo) {
+        if (!owner || !repo || visualizacaoAtiva !== "issues") {
             return;
         }
 
@@ -137,15 +152,50 @@ export default function DetailsPage() {
             .finally(() => {
                 setCarregandoIssues(false);
             });
-    }, [owner, repo, paginaIssues, estadoIssues, issuesPorPagina]);
+    }, [owner, repo, paginaIssues, estadoIssues, issuesPorPagina, visualizacaoAtiva]);
 
     useEffect(() => {
         setPaginaIssues(1);
     }, [owner, repo, estadoIssues, issuesPorPagina]);
 
+    useEffect(() => {
+        if (!owner || !repo || visualizacaoAtiva !== "labels") {
+            return;
+        }
+
+        setCarregandoLabels(true);
+        setErroLabels("");
+
+        api.get<RepoLabel[]>(`/repos/${owner}/${repo}/labels`, {
+            params: {
+                per_page: labelsPorPagina,
+                page: paginaLabels,
+            },
+        })
+            .then((response) => {
+                setLabels(response.data);
+
+                const linkHeader = String(response.headers.link || "");
+                const hasNextFromHeader = /rel="next"/.test(linkHeader);
+                setTemProximaPaginaLabels(hasNextFromHeader || response.data.length === labelsPorPagina);
+            })
+            .catch(() => {
+                setErroLabels("Não foi possível carregar as labels do repositório.");
+                setLabels([]);
+                setTemProximaPaginaLabels(false);
+            })
+            .finally(() => {
+                setCarregandoLabels(false);
+            });
+    }, [owner, repo, paginaLabels, labelsPorPagina, visualizacaoAtiva]);
+
+    useEffect(() => {
+        setPaginaLabels(1);
+    }, [owner, repo, labelsPorPagina]);
+
     return (
         <Conteiner>
-            <div className="mt-10 w-full max-w-2xl">
+            <div className="mx-auto mt-10 w-full max-w-2xl">
                 <Link
                     to="/"
                     className="mb-6 inline-flex items-center gap-2 rounded-md border border-white px-4 py-2 text-sm text-white transition hover:bg-white hover:text-black"
@@ -207,99 +257,195 @@ export default function DetailsPage() {
                         </a>
 
                         <div className="mt-8">
-                            <h2 className="text-xl font-semibold text-white">Issues do repositório</h2>
+                            <h2 className="text-xl font-semibold text-white">Conteúdo do repositório</h2>
 
-                            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-                                <label className="flex items-center gap-2 text-sm text-gray-300">
-                                    Estado:
-                                    <select
-                                        value={estadoIssues}
-                                        onChange={(e) => setEstadoIssues(e.target.value as IssueStateFilter)}
-                                        className="rounded-md border border-white/30 bg-black px-2 py-1 text-sm text-white"
-                                    >
-                                        <option value="open">Abertas</option>
-                                        <option value="closed">Fechadas</option>
-                                        <option value="all">Todas</option>
-                                    </select>
-                                </label>
-
-                                <label className="flex items-center gap-2 text-sm text-gray-300">
-                                    Por página:
-                                    <select
-                                        value={issuesPorPagina}
-                                        onChange={(e) => setIssuesPorPagina(Number(e.target.value))}
-                                        className="rounded-md border border-white/30 bg-black px-2 py-1 text-sm text-white"
-                                    >
-                                        <option value={5}>5</option>
-                                        <option value={10}>10</option>
-                                        <option value={20}>20</option>
-                                    </select>
-                                </label>
+                            <div className="mt-4 inline-flex rounded-md border border-white/20 bg-black/30 p-1">
+                                <button
+                                    onClick={() => setVisualizacaoAtiva("issues")}
+                                    className={`rounded px-3 py-1 text-sm transition ${visualizacaoAtiva === "issues" ? "bg-white text-black" : "text-white hover:bg-white/10"}`}
+                                >
+                                    Issues
+                                </button>
+                                <button
+                                    onClick={() => setVisualizacaoAtiva("labels")}
+                                    className={`rounded px-3 py-1 text-sm transition ${visualizacaoAtiva === "labels" ? "bg-white text-black" : "text-white hover:bg-white/10"}`}
+                                >
+                                    Labels
+                                </button>
                             </div>
 
-                            {carregandoIssues && (
-                                <p className="mt-3 text-sm text-gray-400">Carregando issues...</p>
-                            )}
+                            {visualizacaoAtiva === "issues" && (
+                                <div className="mt-6">
+                                    <h3 className="text-lg font-semibold text-white">Issues do repositório</h3>
 
-                            {!carregandoIssues && erroIssues && (
-                                <p className="mt-3 text-sm text-red-400">{erroIssues}</p>
-                            )}
+                                    <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                                        <label className="flex items-center gap-2 text-sm text-gray-300">
+                                            Estado:
+                                            <select
+                                                value={estadoIssues}
+                                                onChange={(e) => setEstadoIssues(e.target.value as IssueStateFilter)}
+                                                className="rounded-md border border-white/30 bg-black px-2 py-1 text-sm text-white"
+                                            >
+                                                <option value="open">Abertas</option>
+                                                <option value="closed">Fechadas</option>
+                                                <option value="all">Todas</option>
+                                            </select>
+                                        </label>
 
-                            {!carregandoIssues && !erroIssues && issues.length === 0 && (
-                                <p className="mt-3 text-sm text-gray-400">Nenhuma issue encontrada para os filtros atuais.</p>
-                            )}
+                                        <label className="flex items-center gap-2 text-sm text-gray-300">
+                                            Por página:
+                                            <select
+                                                value={issuesPorPagina}
+                                                onChange={(e) => setIssuesPorPagina(Number(e.target.value))}
+                                                className="rounded-md border border-white/30 bg-black px-2 py-1 text-sm text-white"
+                                            >
+                                                <option value={5}>5</option>
+                                                <option value={10}>10</option>
+                                                <option value={20}>20</option>
+                                            </select>
+                                        </label>
+                                    </div>
 
-                            {!carregandoIssues && !erroIssues && issues.length > 0 && (
-                                <div className="mt-4 space-y-3">
-                                    {issues.map((issue) => (
-                                        (() => {
-                                            const perfilAutor = autoresIssue[issue.user.login];
-                                            const nomeAutor = perfilAutor?.name || issue.user.login;
-                                            const avatarAutor = perfilAutor?.avatar_url || issue.user.avatar_url;
+                                    {carregandoIssues && (
+                                        <p className="mt-3 text-sm text-gray-400">Carregando issues...</p>
+                                    )}
 
-                                            return (
-                                        <a
-                                            key={issue.id}
-                                            href={issue.html_url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="flex items-start gap-3 rounded-md border border-white/10 bg-black/30 p-3 transition hover:border-white/30"
+                                    {!carregandoIssues && erroIssues && (
+                                        <p className="mt-3 text-sm text-red-400">{erroIssues}</p>
+                                    )}
+
+                                    {!carregandoIssues && !erroIssues && issues.length === 0 && (
+                                        <p className="mt-3 text-sm text-gray-400">Nenhuma issue encontrada para os filtros atuais.</p>
+                                    )}
+
+                                    {!carregandoIssues && !erroIssues && issues.length > 0 && (
+                                        <div className="mt-4 space-y-3">
+                                            {issues.map((issue) => (
+                                                (() => {
+                                                    const perfilAutor = autoresIssue[issue.user.login];
+                                                    const nomeAutor = perfilAutor?.name || issue.user.login;
+                                                    const avatarAutor = perfilAutor?.avatar_url || issue.user.avatar_url;
+
+                                                    return (
+                                                        <a
+                                                            key={issue.id}
+                                                            href={issue.html_url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="flex items-start gap-3 rounded-md border border-white/10 bg-black/30 p-3 transition hover:border-white/30"
+                                                        >
+                                                            <img
+                                                                src={avatarAutor}
+                                                                alt={`Avatar de ${nomeAutor}`}
+                                                                className="h-8 w-8 rounded-full border border-white/20 object-cover"
+                                                            />
+                                                            <div className="min-w-0">
+                                                                <p className="truncate text-sm font-semibold text-white">#{issue.number} {issue.title}</p>
+                                                                <p className="mt-1 text-xs text-gray-400">aberta por {nomeAutor}</p>
+                                                            </div>
+                                                        </a>
+                                                    );
+                                                })()
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <button
+                                            onClick={() => setPaginaIssues((prev) => Math.max(1, prev - 1))}
+                                            disabled={paginaIssues === 1 || carregandoIssues}
+                                            className="rounded-md border border-white px-3 py-1 text-sm text-white transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
                                         >
-                                            <img
-                                                src={avatarAutor}
-                                                alt={`Avatar de ${nomeAutor}`}
-                                                className="h-8 w-8 rounded-full border border-white/20 object-cover"
-                                            />
-                                            <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold text-white">#{issue.number} {issue.title}</p>
-                                                <p className="mt-1 text-xs text-gray-400">aberta por {nomeAutor}</p>
-                                            </div>
-                                        </a>
-                                            );
-                                        })()
-                                    ))}
+                                            Anterior
+                                        </button>
+
+                                        <span className="text-sm text-gray-300">Página {paginaIssues}</span>
+
+                                        <button
+                                            onClick={() => setPaginaIssues((prev) => prev + 1)}
+                                            disabled={!temProximaPagina || carregandoIssues}
+                                            className="rounded-md border border-white px-3 py-1 text-sm text-white transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            Próxima
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
-                            <div className="mt-4 flex items-center justify-between">
-                                <button
-                                    onClick={() => setPaginaIssues((prev) => Math.max(1, prev - 1))}
-                                    disabled={paginaIssues === 1 || carregandoIssues}
-                                    className="rounded-md border border-white px-3 py-1 text-sm text-white transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
-                                >
-                                    Anterior
-                                </button>
+                            {visualizacaoAtiva === "labels" && (
+                                <div className="mt-6">
+                                    <h3 className="text-lg font-semibold text-white">Labels do repositório</h3>
 
-                                <span className="text-sm text-gray-300">Página {paginaIssues}</span>
+                                    <div className="mt-4">
+                                        <label className="flex items-center gap-2 text-sm text-gray-300">
+                                            Por página:
+                                            <select
+                                                value={labelsPorPagina}
+                                                onChange={(e) => setLabelsPorPagina(Number(e.target.value))}
+                                                className="rounded-md border border-white/30 bg-black px-2 py-1 text-sm text-white"
+                                            >
+                                                <option value={5}>5</option>
+                                                <option value={10}>10</option>
+                                                <option value={20}>20</option>
+                                            </select>
+                                        </label>
+                                    </div>
 
-                                <button
-                                    onClick={() => setPaginaIssues((prev) => prev + 1)}
-                                    disabled={!temProximaPagina || carregandoIssues}
-                                    className="rounded-md border border-white px-3 py-1 text-sm text-white transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
-                                >
-                                    Próxima
-                                </button>
-                            </div>
+                                    {carregandoLabels && (
+                                        <p className="mt-3 text-sm text-gray-400">Carregando labels...</p>
+                                    )}
+
+                                    {!carregandoLabels && erroLabels && (
+                                        <p className="mt-3 text-sm text-red-400">{erroLabels}</p>
+                                    )}
+
+                                    {!carregandoLabels && !erroLabels && labels.length === 0 && (
+                                        <p className="mt-3 text-sm text-gray-400">Nenhuma label encontrada.</p>
+                                    )}
+
+                                    {!carregandoLabels && !erroLabels && labels.length > 0 && (
+                                        <div className="mt-4 space-y-3">
+                                            {labels.map((label) => (
+                                                <div
+                                                    key={label.id}
+                                                    className="rounded-md border border-white/10 bg-black/30 p-3"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span
+                                                            className="inline-block h-3 w-3 rounded-full border border-white/20"
+                                                            style={{ backgroundColor: `#${label.color}` }}
+                                                        />
+                                                        <p className="text-sm font-semibold text-white">{label.name}</p>
+                                                    </div>
+                                                    <p className="mt-1 text-xs text-gray-400">
+                                                        {label.description || "Sem descrição para esta label."}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <div className="mt-4 flex items-center justify-between">
+                                        <button
+                                            onClick={() => setPaginaLabels((prev) => Math.max(1, prev - 1))}
+                                            disabled={paginaLabels === 1 || carregandoLabels}
+                                            className="rounded-md border border-white px-3 py-1 text-sm text-white transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            Anterior
+                                        </button>
+
+                                        <span className="text-sm text-gray-300">Página {paginaLabels}</span>
+
+                                        <button
+                                            onClick={() => setPaginaLabels((prev) => prev + 1)}
+                                            disabled={!temProximaPaginaLabels || carregandoLabels}
+                                            className="rounded-md border border-white px-3 py-1 text-sm text-white transition hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            Próxima
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
